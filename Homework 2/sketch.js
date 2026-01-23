@@ -18,13 +18,6 @@ function setup() {
     line(440, 80, 440, 330); // Vertical pane
     line(350, 205, 530, 205); // Horizontal pane
   
-    // 3. ROCK POSTER
-    noStroke();
-    fill(40); 
-    rect(80, 100, 120, 160);
-    fill(255, 0, 0); // Triangle "Band Logo"
-    triangle(100, 230, 140, 130, 180, 230);
-  
     // 4. GUITAR
     // Body (Two circles layered)
     fill(180, 90, 40); 
