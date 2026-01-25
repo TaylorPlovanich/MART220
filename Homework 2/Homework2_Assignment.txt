@@ -1,0 +1,21 @@
+Personalized p5.js Assignment Theme: A Cozy Music Corner
+
+Assignment Description (Deliverable) For this p5.js sketch, I will create a cozy music corner scene using only basic p5.js shape functions. The drawing will represent a small, relaxing space where someone might sit and listen to music or practice an instrument. The scene will be created using simple geometric shapes to suggest objects rather than draw them realistically. The focus is on composition, color, and shape layering rather than detail.
+
+What to Draw Your sketch should include the following elements:
+
+Background & Space: A wall and floor using rect() and a soft, warm background color to suggest an indoor setting.
+
+Furniture: A chair or stool made from rect() and line(), or an optional small table using rectangles.
+
+Music Element: A guitar, keyboard, record player, or speakers using circle() for speaker cones or knobs, rect() for the body, and line() for strings or wires.
+
+Decorative Details: A window, poster, or plant using rect(), triangle(), or ellipse(), and optional music notes using ellipse() and line().
+
+Technical Requirements * Canvas size: 600 × 600
+
+Shapes: Use at least 4 different shape functions (e.g., rect(), circle(), triangle(), line()).
+
+Color: Use fill() and stroke() to add multiple colors.
+
+Composition: Shapes should vary in size and placement, and objects should be built from multiple layered shapes.
