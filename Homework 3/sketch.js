@@ -1,71 +1,68 @@
 var noteX = 300;
 var noteY = 300;
+var speedX = 2;
+var speedY = 2;
 
 function setup() {
   createCanvas(600, 600);
 }
 
 function draw() {
-  background(245, 230, 210); // Soft, warm cream background for the room
+  background(245, 230, 210); // Warm cream
 
-  // 1. THE FLOOR
+  // --- 1-6: STATIC ELEMENTS ---
   noStroke();
   fill(120, 80, 50); 
-  rect(0, 450, 600, 150);
+  rect(0, 450, 600, 150); // Floor
 
-  // 2. THE WINDOW
   fill(173, 216, 230); 
   stroke(255);
   strokeWeight(8);
-  rect(350, 80, 180, 250);
+  rect(350, 80, 180, 250); // Window
   line(440, 80, 440, 330); 
   line(350, 205, 530, 205); 
 
-  // 3. THE ROCK POSTER
   noStroke();
   fill(40); 
-  rect(80, 100, 120, 160);
+  rect(80, 100, 120, 160); // Poster
   fill(255, 0, 0); 
   triangle(100, 230, 140, 130, 180, 230);
 
-  // 4. THE SPEAKER / AMP
   fill(60); 
-  rect(100, 380, 100, 120);
+  rect(100, 380, 100, 120); // Amp
   fill(30); 
   circle(150, 415, 40);
   circle(150, 465, 50);
-  fill(200, 150, 50); 
-  circle(115, 395, 8);
 
-  // 5. THE ACOUSTIC GUITAR
   fill(180, 90, 40); 
-  circle(420, 480, 90);
+  circle(420, 480, 90); // Guitar Body
   circle(420, 420, 70);
   fill(40);
-  circle(420, 435, 30);
-  fill(100, 50, 20);
-  rect(410, 300, 20, 100);
-  stroke(220);
-  strokeWeight(1);
-  line(414, 300, 414, 480);
-  line(420, 300, 420, 480);
-  line(426, 300, 426, 480);
+  circle(420, 435, 30); // Sound hole
 
-  // 6. RECORD PLAYER / TURNTABLE
-  noStroke();
   fill(100, 100, 120); 
-  rect(230, 420, 120, 60);
+  rect(230, 420, 120, 60); // Turntable
   fill(20); 
-  circle(290, 450, 45);
-  fill(255, 255, 100); 
-  circle(290, 450, 10);
-  
-  // 7. INTERACTIVE RANDOM SHAPE (Music Note)
+  circle(290, 450, 45); // Record
+
+  // --- 7: MOTION & CONTROL STATEMENTS ---
+  // Basic movement logic
+  noteX += speedX;
+  noteY += speedY;
+
+  // Control statements: Bounce the note if it hits the wall
+  if (noteX > width || noteX < 0) {
+    speedX *= -1;
+  }
+  if (noteY > height || noteY < 0) {
+    speedY *= -1;
+  }
+
   fill(255, 100, 100);
   noStroke();
-  circle(noteX, noteY, 20); // This moves only when you click
-  
-  // 8. REQUIRED METADATA
+  circle(noteX, noteY, 20); // Moving music note
+
+  // --- 8: METADATA ---
   fill(0);
   textSize(16);
   textAlign(LEFT, TOP);
@@ -75,8 +72,9 @@ function draw() {
   text("Taylor Plovanich", 585, 585); // Name: Lower-right
 }
 
-// Click to move the note to a random location
+// --- 9: EVENT HANDLING ---
 function mousePressed() {
+  // Move randomly to different location on click
   noteX = random(50, 550);
   noteY = random(50, 550);
 }
