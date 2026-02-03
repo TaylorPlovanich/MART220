@@ -1,0 +1,113 @@
+SOURCE: ChatGPT 
+TOPIC: Interactive p5.js iteration of a "Cozy Music Corner"
+
+PROMPT USED: 
+"Generate a p5.js version of a Cozy Music Corner that uses this code (I gave it my code from week 2)
+
+AI-GENERATED CODE:
+let recordAngle = 0;
+let sunX = 380;
+let sunSpeed = 0.5;
+let spinRecord = true;
+
+function setup() {
+  createCanvas(600, 600);
+}
+
+function draw() {
+  background(245, 230, 210);
+
+  // TITLE (upper-left)
+  fill(40);
+  textSize(18);
+  text("Cozy Music Corner", 20, 30);
+
+  // FLOOR
+  noStroke();
+  fill(120, 80, 50);
+  rect(0, 450, 600, 150);
+
+  // WINDOW
+  fill(173, 216, 230);
+  stroke(255);
+  strokeWeight(8);
+  rect(350, 80, 180, 250);
+  line(440, 80, 440, 330);
+  line(350, 205, 530, 205);
+
+  // MOVING SUNLIGHT (random motion)
+  noStroke();
+  fill(255, 255, 180, 120);
+  circle(sunX, 140, 40);
+  sunX += sunSpeed;
+
+  if (sunX > 520 || sunX < 360) {
+    sunSpeed *= -1;
+  }
+
+  // POSTER
+  fill(40);
+  rect(80, 100, 120, 160);
+  fill(255, 0, 0);
+  triangle(100, 230, 140, 130, 180, 230);
+
+  // AMP
+  fill(60);
+  rect(100, 380, 100, 120);
+  fill(30);
+  circle(150, 415, 40);
+  circle(150, 465, 50);
+  fill(200, 150, 50);
+  circle(115, 395, 8);
+
+  // GUITAR
+  fill(180, 90, 40);
+  circle(420, 480, 90);
+  circle(420, 420, 70);
+  fill(40);
+  circle(420, 435, 30);
+  fill(100, 50, 20);
+  rect(410, 300, 20, 100);
+
+  stroke(220);
+  strokeWeight(1);
+  line(414, 300, 414, 480);
+  line(420, 300, 420, 480);
+  line(426, 300, 426, 480);
+
+  // RECORD PLAYER BASE
+  noStroke();
+  fill(100, 100, 120);
+  rect(230, 420, 120, 60);
+
+  // ROTATING RECORD
+  push();
+  translate(290, 450);
+  rotate(recordAngle);
+  fill(20);
+  circle(0, 0, 45);
+  fill(255, 255, 100);
+  circle(0, 0, 10);
+  pop();
+
+  if (spinRecord) {
+    recordAngle += 0.05;
+  }
+
+  // NAME (lower-right)
+  fill(40);
+  textSize(14);
+  text("Your Name", 500, 590);
+}
+
+// MOUSE INTERACTION
+function mousePressed() {
+  spinRecord = !spinRecord;
+}
+
+// KEYBOARD INTERACTION
+function keyPressed() {
+  if (key === 'R') {
+    sunX = random(360, 520);
+  }
+}
