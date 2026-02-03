@@ -88,7 +88,7 @@ function drawUI() {
     text("Cozy Music Corner v2", 15, 15); // Title: Upper-left
     
     textAlign(RIGHT, BOTTOM);
-    text("Your Name", 585, 585); // Name: Lower-right
+    text("Taylor Plovanich", 585, 585); // Name: Lower-right
 }
 
 // ---------------- EVENTS ----------------
