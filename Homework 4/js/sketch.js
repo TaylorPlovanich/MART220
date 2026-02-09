@@ -17,40 +17,56 @@ let theFont;
 let timerInterval;
 
 function preload() {
-    // Corrected paths to match your folder structure and filenames
+    // Load all three images
     pizza1 = loadImage('images/pizza1.png');
     pizza2 = loadImage('images/pizza2.jpg');
     aiPizza = loadImage('images/pizza3.jpg'); // Your Generative AI image
     
-    // Path for your Pizza Hoot font
+    // Load custom font
     theFont = loadFont('assets/PizzaHoot-JRawE.otf');
 }
 
 function setup() {
     createCanvas(800, 600);
-    // Requirement: Timer-based logic
+    // Timer-based movement: moves pizza1 every 5 seconds
     setInterval(randomMovement, 5000); 
+    // Timer countdown: decreases every second
     timerInterval = setInterval(timer, 1000);
 }
 
 function draw() {
     background(220);
     
-    // Images must be loaded and displayed properly
+    // Image 1: Pizza that moves randomly every 5 seconds (timer-based)
     pizza1.resize(100, 0);
     image(pizza1, staticX, staticY);
 
-    // This image moves using arrow keys and follows timer-based logic
+    // Image 2: Static pizza in bottom right corner
+    pizza2.resize(80, 0);
+    image(pizza2, 650, 500);
+
+    // Image 3: AI-generated pizza controlled by arrow keys
     aiPizza.resize(200, 0);
     image(aiPizza, aiX, aiY);
 
-    // Custom Typography Requirement
+    // Project Title with custom font
     fill(255, 0, 0);
     textFont(theFont);
-    textSize(32);
-    text("Time Left: " + timeLeft, 20, 40);
-    text("By: Taylor Plovnich", 20, 80);
+    textSize(48);
+    textAlign(CENTER);
+    text("PIZZA CATCHER", width / 2, 50);
+    
+    // Name with custom font
+    textSize(24);
+    text("by Taylor Plovanich", width / 2, 90);
+    
+    // Timer display
+    textAlign(LEFT);
+    fill(0);
+    textSize(20);
+    text("Time Left: " + timeLeft, 20, height - 20);
 
+    // Game Over screen
     if(timeLeft <= 0){
         fill(0);
         textSize(64);
@@ -58,7 +74,7 @@ function draw() {
         text("Game Over!", width / 2, height / 2);
     }
 
-    // Interactive movement logic
+    // Arrow key controls for AI pizza
     if (keyIsPressed) {
         if (keyCode === LEFT_ARROW) {
             if (aiX <= -200) {
@@ -78,14 +94,14 @@ function draw() {
     }
 }
 
+// Timer function: Moves pizza1 to random position every 5 seconds
 function randomMovement() {
-    // Changes the position of the static pizza every 5 seconds
     staticX = random(0, width - 100);
     staticY = random(0, height - 100);
 } 
 
+// Timer function: Countdown every second
 function timer() {
-    // Decrements the timer value every second
     timeLeft -= 1;
     if (timeLeft <= 0) {
         clearInterval(timerInterval);
