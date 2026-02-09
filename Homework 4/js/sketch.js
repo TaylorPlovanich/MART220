@@ -23,7 +23,7 @@ function preload() {
     aiPizza = loadImage('images/pizza3.jpg'); // Your Generative AI image
     
     // Load custom font
-    theFont = loadFont('assets/PizzaHoot-JRawE.otf');
+    theFont = loadFont('assets/fonts/PizzaFont.ttf');
 }
 
 function setup() {
