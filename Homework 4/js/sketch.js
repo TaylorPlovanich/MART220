@@ -1,71 +1,52 @@
-// Variables for images and font
-let customFont;
-let pizzaImg1, pizzaImg2, pizzaImg3;
-
-// Variables for movement
-let pizzaX = 100;
-let moveRight = true;
+let titleFont;
+let pizza1, pizza2, aiPizza;
+let aiX = 100;
+let aiY = 100;
 
 function preload() {
-  // Load the custom font
-  customFont = loadFont('assets/PizzaFont.ttf');
-  
-  // Load the three images
-  pizzaImg1 = loadImage(image/pizzaImg1);  // AI-generated
-  pizzaImg2 = loadImage('images/pizza2.png');  
-  pizzaImg3 = loadImage('images/topping.png'); 
+  // Pathing updated to match your images folder screenshot
+  pizza1 = loadImage('images/pizza1.png'); 
+  pizza2 = loadImage('images/pizza2.jpg'); 
+  aiPizza = loadImage('images/pizza3.jpg'); 
+
+  // Pathing updated to match your uploaded font file
+  titleFont = loadFont('assets/PizzaHoot-JRawE.otf'); 
 }
 
 function setup() {
-  createCanvas(800, 600);
+  createCanvas(windowWidth, windowHeight);
   
-  // Timer that moves the pizza every 2 seconds
-  setInterval(movePizza, 2000);
+  // Requirement: Timer-based movement
+  setInterval(movePizza, 1500);
 }
 
 function draw() {
-  // Simple background
-  background(255, 230, 200);
-  
-  // Title with custom font
-  fill(200, 50, 50);
-  textFont(customFont);
-  textSize(48);
+  background(255, 248, 220); 
+
+  // Requirement: Custom Typography
+  textFont(titleFont);
+  fill(180, 0, 0); 
   textAlign(CENTER);
-  text("TAYLOR'S PIZZA PARADISE", 400, 60);
   
-  // My name with custom font
-  fill(100);
-  textSize(20);
-  text("by Taylor Plovanich", 400, 580);
+  textSize(60);
+  text("Taylor's Pizza Paradise", width / 2, 80);
   
-  // Draw a simple counter/table
-  fill(139, 90, 43);
-  rect(0, 400, 800, 200);
-  
-  // Image 1: Moving pizza (timer-based movement)
-  image(pizzaImg1, pizzaX, 250, 120, 120);
-  
-  // Image 2: Static pizza on the right
-  image(pizzaImg2, 550, 300, 100, 100);
-  
-  // Image 3: Topping in the corner
-  image(pizzaImg3, 100, 450, 50, 50);
+  textSize(24);
+  text("By: Taylor Plovnich", width / 2, 120);
+
+  // Requirement: Three Images (Static)
+  image(pizza1, 50, 200, 300, 300);
+  image(pizza2, width - 350, 200, 300, 300);
+
+  // Moving Image (Controlled by Timer)
+  image(aiPizza, aiX, aiY, 250, 250);
 }
 
-// This function is called by the timer every 2 seconds
 function movePizza() {
-  if (moveRight) {
-    pizzaX = pizzaX + 150;
-  } else {
-    pizzaX = pizzaX - 150;
-  }
-  
-  // Change direction at edges
-  if (pizzaX > 600) {
-    moveRight = false;
-  }
-  if (pizzaX < 100) {
-    moveRight = true;
-  }
+  aiX = random(50, width - 250);
+  aiY = random(150, height - 250);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
