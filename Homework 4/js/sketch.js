@@ -11,7 +11,7 @@ function preload() {
   customFont = loadFont('assets/PizzaFont.ttf');
   
   // Load the three images
-  pizzaImg1 = loadImage('images/pizza1.png');  // AI-generated
+  pizzaImg1 = loadImage(image/pizzaImg1);  // AI-generated
   pizzaImg2 = loadImage('images/pizza2.png');  
   pizzaImg3 = loadImage('images/topping.png'); 
 }
