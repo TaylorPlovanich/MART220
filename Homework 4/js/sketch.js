@@ -1,10 +1,22 @@
 /* GENERATIVE AI REFLECTION:
-   I used a Generative AI model to create 'pizza3.jpg'. 
-   I chose this model because I wanted a hyper-realistic image of a pizza 
-   that looked visually intentional for my theme. 
-   The prompt used was "top-down view of a fresh pepperoni pizza on a 
-   black background". The image was exactly what I expected 
-   and helps the project feel more dynamic.
+Which Generative AI image model did you use?
+ I used Gemini to generate one of my pizza images.
+   
+Why did you choose that specific one?
+   Because it's completely free to use and doesn't require 
+   any paid subscription. Plus, I just wanted to see if Gemini has gotten better.
+   
+What was your prompt like?
+   My prompt was simple: make me an image of a pepperoni pizza top view. I kept it straightforward 
+   because I wanted a clean, realistic image that would work well in my project.
+   
+Was the image what you expected? Why or why not?
+   Yes, the result was good. I didn't have any expectations. The AI created a realistic 
+   pizza with good detail and natural lighting. The cheese and pepperoni looked authentic, 
+   which was important for making my project feel more polished.
+   
+How did the image contribute to your overall project?
+   It looks real, so you can't even tell. It doesn't stand out from the other images I used.
 */
 
 let pizza1, pizza2, aiPizza;
@@ -20,7 +32,7 @@ function preload() {
     // Load all three images
     pizza1 = loadImage('images/pizza1.png');
     pizza2 = loadImage('images/pizza2.jpg');
-    aiPizza = loadImage('images/pizza3.jpg'); // Your Generative AI image
+    aiPizza = loadImage('images/pizza3.jpg'); 
     
     // Load custom font
     theFont = loadFont('assets/PizzaFont.ttf');
@@ -37,7 +49,7 @@ function setup() {
 function draw() {
     background(220);
     
-    // Image 1: Pizza that moves randomly every 5 seconds (timer-based)
+    // Image 1: Pizza that moves randomly every 5 seconds (timer-based) AI image
     pizza1.resize(100, 0);
     image(pizza1, staticX, staticY);
 
@@ -45,7 +57,7 @@ function draw() {
     pizza2.resize(80, 0);
     image(pizza2, 650, 500);
 
-    // Image 3: AI-generated pizza controlled by arrow keys
+    // Image 3: pizza controlled by arrow keys
     aiPizza.resize(200, 0);
     image(aiPizza, aiX, aiY);
 
