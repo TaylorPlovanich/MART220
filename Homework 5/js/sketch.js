@@ -12,7 +12,7 @@ var animationSpeed = 8;
 function preload() {
   for (var i = 0; i < totalFrames; i++) {
     var frameNum = nf(i + 1, 3); 
-    idleImages[i] = loadImage("assets/Idle" + frameNum + ".png");
+    idleImages[i] = loadImage("images/Idle" + frameNum + ".png");
   }
 }
 
