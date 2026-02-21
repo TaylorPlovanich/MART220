@@ -29,7 +29,7 @@ function preload() {
 function setup() {
   createCanvas(800, 600);
 
-  // Create 5 food objects with different colors, sizes, and positions
+  // 5 food objects with different colors, sizes, and positions
   foods[0] = new Food(100, 150, 40, color(255, 80, 80));
   foods[1] = new Food(250, 400, 30, color(80, 200, 80));
   foods[2] = new Food(500, 100, 50, color(80, 150, 255));
