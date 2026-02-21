@@ -22,7 +22,7 @@ function preload() {
   for (var i = 0; i < totalFrames; i++) {
     var frameNum = nf(i, 3);
     idleImages[i] = loadImage("images/Idle" + frameNum + ".png");
-    deadImages[i] = loadImage("images/Dead__" + frameNum + ".png");
+    deadImages[i] = loadImage("images/Dead" + frameNum + ".png");
   }
 }
 
