@@ -1,6 +1,5 @@
-// =============================================
+
 // Homework 7 - Interaction, Scoring, and Timers
-// =============================================
 
 // --- Global Variables ---
 let player;
