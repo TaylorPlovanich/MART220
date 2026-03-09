@@ -11,7 +11,7 @@ let health = 3;
 let timeLeft = 60;
 let lastSecond;
 let gameOver = false;
-let gameStarted = false; // game starts on first click/keypress
+let gameStarted = false;
 
 // Image arrays
 let idleImgs = [];
@@ -27,17 +27,22 @@ let badFoodSnd;
 
 // --- Preload ---
 function preload() {
-  // Idle frames
+  // Idle frames: Idle000.png - Idle009.png
   for (let i = 0; i <= 9; i++) {
-    idleImgs.push(loadImage('images/Idle' + nf(i, 3) + '.png'));
+    let num = nf(i, 3);
+    idleImgs.push(loadImage('images/Idle' + num + '.png'));
   }
-  // Run frames
+
+  // Run frames: Run__000.png - Run__009.png
   for (let i = 0; i <= 9; i++) {
-    runImgs.push(loadImage('images/Run__' + nf(i, 3) + '.png'));
+    let num = nf(i, 3);
+    runImgs.push(loadImage('images/Run__' + num + '.png'));
   }
-  // Dead frames
+
+  // Dead frames: Dead000.png - Dead009.png
   for (let i = 0; i <= 9; i++) {
-    deadImgs.push(loadImage('images/Dead' + nf(i, 3) + '.png'));
+    let num = nf(i, 3);
+    deadImgs.push(loadImage('images/Dead' + num + '.png'));
   }
 
   // Food images
@@ -79,7 +84,7 @@ function mousePressed() {
 function draw() {
   background(50, 120, 80);
 
-  // Show start screen
+  // Show start screen until player interacts
   if (!gameStarted) {
     drawStartScreen();
     return;
@@ -97,18 +102,18 @@ function draw() {
       }
     }
 
-    // Update food
+    // Update food movement
     goodFood.update();
     badFood.update();
 
-    // Collision: good food
+    // Collision: good food → score up
     if (goodFood.hits(player)) {
       score++;
       goodFoodSnd.play();
       goodFood.moveRandom();
     }
 
-    // Collision: bad food
+    // Collision: bad food → health down
     if (badFood.hits(player)) {
       health--;
       badFoodSnd.play();
@@ -125,13 +130,13 @@ function draw() {
   player.update(gameOver);
   player.display();
 
-  // Display food
+  // Display food only during game
   if (!gameOver) {
     goodFood.display();
     badFood.display();
   }
 
-  // HUD
+  // Draw score, health, and timer
   drawHUD();
 
   // Game over screen
@@ -161,12 +166,12 @@ function drawHUD() {
   noStroke();
   textSize(20);
 
-  // Score
+  // Score (left)
   fill(255);
   textAlign(LEFT, TOP);
   text('Score: ' + score, 10, 10);
 
-  // Timer
+  // Timer (center)
   textAlign(CENTER, TOP);
   if (timeLeft <= 10) {
     fill(255, 80, 80);
@@ -175,7 +180,7 @@ function drawHUD() {
   }
   text('Time: ' + timeLeft, width / 2, 10);
 
-  // Health (hearts)
+  // Health hearts (right)
   textAlign(RIGHT, TOP);
   fill(255, 80, 120);
   let hearts = '';
@@ -191,15 +196,15 @@ function drawGameOver() {
   fill(255, 80, 80);
   textAlign(CENTER, CENTER);
   textSize(52);
-  text('GAME OVER', width / 2, height / 2 - 50);
+  text('GAME OVER', width / 2, height / 2 - 40);
 
   fill(255);
-  textSize(24);
-  text('Final Score: ' + score, width / 2, height / 2 + 10);
+  textSize(26);
+  text('Final Score: ' + score, width / 2, height / 2 + 20);
 
   fill(200);
   textSize(16);
-  text('Refresh the page to play again', width / 2, height / 2 + 50);
+  text('Refresh the page to play again', width / 2, height / 2 + 60);
 }
 
 // =============================================
@@ -213,14 +218,14 @@ class Player {
     this.speed = 4;
 
     this.idleImgs = idleImgs;
-    this.runImgs  = runImgs;
+    this.runImgs = runImgs;
     this.deadImgs = deadImgs;
 
-    this.state      = 'idle';
+    this.state = 'idle';
     this.frameIndex = 0;
-    this.animTimer  = 0;
-    this.animSpeed  = 6;
-    this.flipped    = false;
+    this.animTimer = 0;
+    this.animSpeed = 6;
+    this.flipped = false;
   }
 
   update(gameOver) {
@@ -251,6 +256,7 @@ class Player {
       moving = true;
     }
 
+    // Keep player on canvas
     this.x = constrain(this.x, this.size / 2, width - this.size / 2);
     this.y = constrain(this.y, this.size / 2, height - this.size / 2);
 
@@ -268,7 +274,7 @@ class Player {
   }
 
   currentImages() {
-    if (this.state === 'run')  return this.runImgs;
+    if (this.state === 'run') return this.runImgs;
     if (this.state === 'dead') return this.deadImgs;
     return this.idleImgs;
   }
