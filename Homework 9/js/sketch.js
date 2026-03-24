@@ -4,6 +4,7 @@
 
 // --- Global Variables ---
 let player;
+let playerBody; // tiny invisible p5.play sprite for collision only
 let goodFood;
 let badFood;
 let obstacles = null;
@@ -27,29 +28,16 @@ let badFoodSnd;
 
 // --- Preload ---
 function preload() {
-  // Idle frames: Idle000.png - Idle009.png
   for (let i = 0; i <= 9; i++) {
     let num = nf(i, 3);
     idleImgs.push(loadImage('images/Idle' + num + '.png'));
-  }
-
-  // Run frames: Run__000.png - Run__009.png
-  for (let i = 0; i <= 9; i++) {
-    let num = nf(i, 3);
     runImgs.push(loadImage('images/Run__' + num + '.png'));
-  }
-
-  // Dead frames: Dead000.png - Dead009.png
-  for (let i = 0; i <= 9; i++) {
-    let num = nf(i, 3);
     deadImgs.push(loadImage('images/Dead' + num + '.png'));
   }
 
-  // Food images
   goodFoodImg = loadImage('images/crab_meat.png');
   badFoodImg  = loadImage('images/bad_food.png');
 
-  // Sounds
   bgMusic     = loadSound('sounds/background.mp3');
   goodFoodSnd = loadSound('sounds/good_food.mp3');
   badFoodSnd  = loadSound('sounds/bad_food.mp3');
@@ -58,13 +46,24 @@ function preload() {
 // --- Setup ---
 function setup() {
   new Canvas(600, 400);
-  player   = new Player(idleImgs, runImgs, deadImgs);
+
+  bgMusic.setLoop(true);
+
+  // Original Player class handles visuals
+  player = new Player(idleImgs, runImgs, deadImgs);
+
+  // Tiny invisible p5.play sprite just for obstacle collision
+  playerBody = new Sprite(player.x, player.y, 30, 50);
+  playerBody.collider = 'dynamic';
+  playerBody.rotationLock = true;
+  playerBody.visible = false;
+  playerBody.mass = 100;
+
   goodFood = new Food(goodFoodImg, 'good');
   badFood  = new Food(badFoodImg, 'bad');
-  bgMusic.setLoop(true);
 }
 
-// --- Create Obstacles (called when game starts) ---
+// --- Create Obstacles ---
 function createObstacles() {
   obstacles = new Group();
   for (let i = 0; i < 4; i++) {
@@ -80,7 +79,7 @@ function createObstacles() {
   }
 }
 
-// --- Start game on keypress or click ---
+// --- Start game ---
 function keyPressed() {
   if (!gameStarted && !gameOver && !gameWon) {
     gameStarted = true;
@@ -101,18 +100,40 @@ function mousePressed() {
 function draw() {
   background(50, 120, 80);
 
-  // Show start screen until player interacts
   if (!gameStarted) {
     drawStartScreen();
     return;
   }
 
   if (!gameOver && !gameWon) {
-    // Update food movement
+    // Apply movement velocity to playerBody
+    playerBody.velocity.x = 0;
+    playerBody.velocity.y = 0;
+
+    if (keyIsDown(LEFT_ARROW) || keyIsDown(65))  playerBody.velocity.x = -4;
+    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) playerBody.velocity.x = 4;
+    if (keyIsDown(UP_ARROW) || keyIsDown(87))    playerBody.velocity.y = -4;
+    if (keyIsDown(DOWN_ARROW) || keyIsDown(83))  playerBody.velocity.y = 4;
+
+    // Resolve collision against obstacles
+    if (obstacles) playerBody.collide(obstacles);
+
+    // Keep playerBody on canvas
+    playerBody.pos.x = constrain(playerBody.pos.x, 20, width - 20);
+    playerBody.pos.y = constrain(playerBody.pos.y, 20, height - 20);
+
+    // Copy resolved position to player visuals
+    player.x = playerBody.pos.x;
+    player.y = playerBody.pos.y;
+
+    // Update player animation
+    player.update(false);
+
+    // Update food
     goodFood.update();
     badFood.update();
 
-    // Collision: good food → score up
+    // Good food collision
     if (goodFood.hits(player)) {
       score++;
       goodFoodSnd.play();
@@ -123,7 +144,7 @@ function draw() {
       }
     }
 
-    // Collision: bad food → health down
+    // Bad food collision
     if (badFood.hits(player)) {
       health--;
       badFoodSnd.play();
@@ -134,40 +155,32 @@ function draw() {
         bgMusic.stop();
       }
     }
+  } else {
+    player.update(true);
   }
 
-  // Update and display player
-  player.update(gameOver || gameWon);
+  // Display player visuals
   player.display();
 
-  // Display food only during game
+  // Display food
   if (!gameOver && !gameWon) {
     goodFood.display();
     badFood.display();
   }
 
-  // Draw score and health
   drawHUD();
-
-  // End screens
-  if (gameOver) {
-    drawGameOver();
-  }
-  if (gameWon) {
-    drawGameWon();
-  }
+  if (gameOver) drawGameOver();
+  if (gameWon) drawGameWon();
 }
 
 // --- Start Screen ---
 function drawStartScreen() {
   fill(0, 0, 0, 160);
   rect(0, 0, width, height);
-
   fill(255);
   textAlign(CENTER, CENTER);
   textSize(40);
   text('CRAB COLLECTOR', width / 2, height / 2 - 50);
-
   textSize(18);
   fill(200);
   text('Collect crab meat. Avoid bad food.', width / 2, height / 2);
@@ -178,13 +191,9 @@ function drawStartScreen() {
 function drawHUD() {
   noStroke();
   textSize(20);
-
-  // Score (left)
   fill(255);
   textAlign(LEFT, TOP);
   text('Score: ' + score + ' / 10', 10, 10);
-
-  // Health hearts (right)
   textAlign(RIGHT, TOP);
   fill(255, 80, 120);
   let hearts = '';
@@ -196,16 +205,13 @@ function drawHUD() {
 function drawGameOver() {
   fill(0, 0, 0, 150);
   rect(0, 0, width, height);
-
   fill(255, 80, 80);
   textAlign(CENTER, CENTER);
   textSize(52);
   text('GAME OVER', width / 2, height / 2 - 40);
-
   fill(255);
   textSize(26);
   text('Final Score: ' + score, width / 2, height / 2 + 20);
-
   fill(200);
   textSize(16);
   text('Refresh the page to play again', width / 2, height / 2 + 60);
@@ -215,23 +221,20 @@ function drawGameOver() {
 function drawGameWon() {
   fill(0, 0, 0, 150);
   rect(0, 0, width, height);
-
   fill(100, 255, 100);
   textAlign(CENTER, CENTER);
   textSize(52);
   text('YOU WIN!', width / 2, height / 2 - 40);
-
   fill(255);
   textSize(26);
   text('Final Score: ' + score, width / 2, height / 2 + 20);
-
   fill(200);
   textSize(16);
   text('Refresh the page to play again', width / 2, height / 2 + 60);
 }
 
 // =============================================
-// Player Class
+// Player Class — handles visuals only
 // =============================================
 class Player {
   constructor(idleImgs, runImgs, deadImgs) {
@@ -239,11 +242,9 @@ class Player {
     this.y = 200;
     this.size = 64;
     this.speed = 4;
-
     this.idleImgs = idleImgs;
     this.runImgs = runImgs;
     this.deadImgs = deadImgs;
-
     this.state = 'idle';
     this.frameIndex = 0;
     this.animTimer = 0;
@@ -251,37 +252,18 @@ class Player {
     this.flipped = false;
   }
 
-  update(gameOver) {
-    if (gameOver) {
+  update(isGameOver) {
+    if (isGameOver) {
       this.state = 'dead';
       this.animate();
       return;
     }
 
     let moving = false;
-
-    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
-      this.x -= this.speed;
-      this.flipped = true;
-      moving = true;
-    }
-    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
-      this.x += this.speed;
-      this.flipped = false;
-      moving = true;
-    }
-    if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
-      this.y -= this.speed;
-      moving = true;
-    }
-    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
-      this.y += this.speed;
-      moving = true;
-    }
-
-    // Keep player on canvas
-    this.x = constrain(this.x, this.size / 2, width - this.size / 2);
-    this.y = constrain(this.y, this.size / 2, height - this.size / 2);
+    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) { this.flipped = true;  moving = true; }
+    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) { this.flipped = false; moving = true; }
+    if (keyIsDown(UP_ARROW) || keyIsDown(87))   moving = true;
+    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) moving = true;
 
     this.state = moving ? 'run' : 'idle';
     this.animate();
@@ -297,7 +279,7 @@ class Player {
   }
 
   currentImages() {
-    if (this.state === 'run') return this.runImgs;
+    if (this.state === 'run')  return this.runImgs;
     if (this.state === 'dead') return this.deadImgs;
     return this.idleImgs;
   }
@@ -318,7 +300,7 @@ class Player {
 class Food {
   constructor(img, type) {
     this.img  = img;
-    this.type = type; // 'good' or 'bad'
+    this.type = type;
     this.size = 40;
     this.x = random(this.size, width - this.size);
     this.y = random(this.size, height - this.size);
@@ -328,9 +310,7 @@ class Food {
 
   update() {
     this.timer++;
-    if (this.timer >= this.moveInterval) {
-      this.moveRandom();
-    }
+    if (this.timer >= this.moveInterval) this.moveRandom();
   }
 
   moveRandom() {
