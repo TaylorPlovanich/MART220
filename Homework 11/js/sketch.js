@@ -168,7 +168,7 @@ function draw() {
       // Press X to attack nearby bad food
       if (keyIsDown(88)) { // X key
         let d = dist(player.x, player.y, badFoods[i].x, badFoods[i].y);
-        if (d < 80) {
+        if (d < 200) {
           // Spawn particles at enemy position
           createParticles(badFoods[i].x, badFoods[i].y);
 
