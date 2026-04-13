@@ -6,6 +6,9 @@ I used createGraphics() for the textures instead of loading actual image files, 
 Tools that helped me:
 
 p5.js documentation for looking stuff up when I got stuck
+
 Free3d.com for finding the sword model
+
 VS Code + Live Server to preview everything locally
+
 Claude for helping me understand concepts like how normalize works and why transformations stack the way they do in WEBGL
