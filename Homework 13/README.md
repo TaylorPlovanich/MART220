@@ -5,10 +5,10 @@ The hardest part for me was wrapping my head around push() and pop(). I kept run
 I used createGraphics() for the textures instead of loading actual image files, which ended up being simpler than I expected. Each shape gets its own color so they're easy to tell apart as they move around.
 Tools that helped me:
 
-p5.js documentation for looking stuff up when I got stuck
+p5.js documentation for looking stuff up when I got stuck,
 
-Free3d.com for finding the sword model
+Free3d.com for finding the sword model, 
 
-VS Code + Live Server to preview everything locally
+VS Code + Live Server to preview everything locally, 
 
 Claude for helping me understand concepts like how normalize works and why transformations stack the way they do in WEBGL
