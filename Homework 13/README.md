@@ -1,4 +1,4 @@
-For this project I went with a sword model as the centerpiece because I thought it would look cool spinning in the middle of the scene. I built five shapes around it that orbit at different speeds which gave it kind of a solar system feel that I liked.
+For this project I went with a sword model as the centerpiece because I thought it would look cool spinning in the middle of the scene. I built five shapes around it that orbit at different speeds which gave it kind of a solar system feel that I liked, which I basically used for last week's assignment.
 
 The hardest part for me was wrapping my head around push() and pop(). I kept running into issues where everything was rotating together and looked like a mess. Once I understood that those functions basically give each object its own little bubble of transformations, it started making a lot more sense.
 
