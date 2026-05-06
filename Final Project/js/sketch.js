@@ -4,43 +4,39 @@
 
 let player, playerBody;
 let goodFoods = [], badFoods = [], walls;
-let score = 0, health = 3, currentLevel = 0; // 0, 1, 2 for three levels
+let score = 0, health = 3, currentLevel = 0; 
 let gameState = "START"; 
 let powerUpActive = false, powerUpTimer = 0;
 
-// Assets
 let idleImgs = [], runImgs = [], deadImgs = [];
 let goodFoodImg, badFoodImg, bgMusic, goodFoodSnd, badFoodSnd;
 
-// --- DYNAMIC MAZE LEVELS ---
+const tileSize = 50;
+
+// --- 3 UNIQUE MAZE LAYOUTS ---
 const levels = [
-  // Level 1: Classic Maze
-  [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,2,0,0,0,0,1,3,0,0,0,0,0,3,1],
-    [1,0,1,1,1,0,1,0,1,1,1,0,1,0,1],
-    [1,3,1,3,3,3,0,3,3,3,1,3,1,3,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  [ // Level 1
+    [1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,2,3,3,3,1,3,3,3,3,3,1],
+    [1,3,1,1,3,1,3,1,1,1,3,1],
+    [1,4,3,3,3,0,3,3,4,3,3,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1]
   ],
-  // Level 2: The Vertical Challenge
-  [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,2,3,1,3,0,0,4,0,0,3,1,3,3,1],
-    [1,0,3,1,0,1,1,1,1,1,0,1,3,0,1],
-    [1,3,0,0,3,0,0,0,0,0,3,0,0,3,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  [ // Level 2
+    [1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,2,0,0,4,1,3,3,3,4,3,1],
+    [1,3,1,1,1,1,0,1,1,1,0,1],
+    [1,3,3,3,3,3,3,3,3,3,3,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1]
   ],
-  // Level 3: The Gauntlet (Large)
-  [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,2,0,4,0,0,0,4,0,0,0,4,0,3,1],
-    [1,1,1,0,1,1,1,0,1,1,1,0,1,1,1],
-    [1,3,0,0,0,3,0,0,0,3,0,0,0,3,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  [ // Level 3
+    [1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,2,4,4,4,1,4,4,4,4,3,1],
+    [1,0,1,1,1,1,1,1,1,1,0,1],
+    [1,3,3,3,3,3,3,3,3,3,3,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1]
   ]
 ];
-
-const tileSize = 50; // Bigger tiles for a bigger maze
 
 function preload() {
   for (let i = 0; i <= 9; i++) {
@@ -57,13 +53,14 @@ function preload() {
 }
 
 function setup() {
-  // Dynamic Canvas based on maze size
-  new Canvas(15 * tileSize, 5 * tileSize);
+  // Set canvas to match the largest possible maze
+  new Canvas(12 * tileSize, 5 * tileSize);
   bgMusic.setLoop(true);
 }
 
 function initLevel() {
-  goodFoods = []; badFoods = [];
+  goodFoods = []; 
+  badFoods = [];
   if (walls) walls.removeAll();
   walls = new Group();
   walls.collider = 'static';
@@ -75,21 +72,19 @@ function initLevel() {
       let x = c * tileSize + tileSize/2;
       let y = r * tileSize + tileSize/2;
       
-      if (currentMap[r][c] === 1) {
+      let type = currentMap[r][c];
+      if (type === 1) {
         let w = new walls.Sprite(x, y, tileSize, tileSize);
-        // Visual Variety: Change wall color per level
-        if (currentLevel === 0) w.color = 'blue';
-        else if (currentLevel === 1) w.color = 'red';
-        else w.color = 'purple';
-      } else if (currentMap[r][c] === 2) {
+        w.color = (currentLevel === 0) ? 'blue' : (currentLevel === 1) ? 'red' : 'purple';
+      } else if (type === 2) {
         player = new Player(idleImgs, runImgs, deadImgs, x, y);
         if (playerBody) playerBody.remove();
         playerBody = new Sprite(x, y, 30, 30);
         playerBody.rotationLock = true;
         playerBody.visible = false;
-      } else if (currentMap[r][c] === 3) {
+      } else if (type === 3) {
         goodFoods.push(new Food(goodFoodImg, x, y));
-      } else if (currentMap[r][c] === 4) {
+      } else if (type === 4) {
         badFoods.push(new BadFood(badFoodImg, x, y));
       }
     }
@@ -97,7 +92,7 @@ function initLevel() {
 }
 
 function draw() {
-  background(10);
+  background(15);
 
   if (gameState === "START") {
     drawStartScreen();
@@ -111,30 +106,30 @@ function draw() {
 }
 
 function updateGameLogic() {
-  // Movement logic
-  playerBody.velocity.x = 0; playerBody.velocity.y = 0;
-  if (keyIsDown(LEFT_ARROW))  playerBody.velocity.x = -4;
-  if (keyIsDown(RIGHT_ARROW)) playerBody.velocity.x = 4;
-  if (keyIsDown(UP_ARROW))    playerBody.velocity.y = -4;
-  if (keyIsDown(DOWN_ARROW))  playerBody.velocity.y = 4;
+  // Simple Grid Controls
+  playerBody.vel.x = 0; playerBody.vel.y = 0;
+  let s = 4;
+  if (kb.pressing('left'))  playerBody.vel.x = -s;
+  if (kb.pressing('right')) playerBody.vel.x = s;
+  if (kb.pressing('up'))    playerBody.vel.y = -s;
+  if (kb.pressing('down'))  playerBody.vel.y = s;
 
   playerBody.collide(walls);
   player.x = playerBody.x; player.y = playerBody.y;
   player.update(health <= 0);
 
-  // Power-up timer
   if (powerUpActive) {
     powerUpTimer--;
     if (powerUpTimer <= 0) powerUpActive = false;
   }
 
-  // Crabs and Power-ups
+  // Collection
   for (let i = goodFoods.length - 1; i >= 0; i--) {
     goodFoods[i].display();
     if (dist(player.x, player.y, goodFoods[i].x, goodFoods[i].y) < 30) {
       if (goodFoods[i].isPowerUp) {
         powerUpActive = true;
-        powerUpTimer = 300; // 5 seconds
+        powerUpTimer = 300; 
       }
       goodFoods.splice(i, 1);
       score += 10;
@@ -142,7 +137,7 @@ function updateGameLogic() {
     }
   }
 
-  // Ghosts / Enemies
+  // Enemies
   for (let i = badFoods.length - 1; i >= 0; i--) {
     badFoods[i].display(powerUpActive);
     badFoods[i].move(walls);
@@ -154,13 +149,13 @@ function updateGameLogic() {
       } else {
         health--;
         badFoodSnd.play();
-        playerBody.x = tileSize * 1.5; playerBody.y = tileSize * 1.5;
+        playerBody.x = tileSize * 1.5; 
+        playerBody.y = tileSize * 1.5;
         if (health <= 0) gameState = "GAMEOVER";
       }
     }
   }
 
-  // Level Clear Logic
   if (goodFoods.length === 0) {
     if (currentLevel < 2) {
       currentLevel++;
@@ -177,7 +172,7 @@ function updateGameLogic() {
 function keyPressed() {
   if (gameState === "START") {
     gameState = "PLAY";
-    bgMusic.play();
+    if (!bgMusic.isPlaying()) bgMusic.play();
     initLevel();
   } else if ((gameState === "GAMEOVER" || gameState === "WIN") && key === 'r') {
     currentLevel = 0; score = 0; health = 3;
@@ -185,39 +180,39 @@ function keyPressed() {
   }
 }
 
-// --- UI SCREENS (Forced font to fix rendering) ---
+// --- UI SCREENS ---
 function drawStartScreen() {
   fill(255); textAlign(CENTER, CENTER); textFont('sans-serif');
-  textSize(40); text("CRAB-MAN PRO", width/2, height/2 - 20);
-  textSize(16); text("Press any key to start levels 1-3!", width/2, height/2 + 30);
+  textSize(32); text("CRAB-MAN PRO", width/2, height/2 - 20);
+  textSize(14); text("Press any key to begin!", width/2, height/2 + 20);
 }
 
 function drawHUD() {
-  push(); textFont('sans-serif'); fill(255); textSize(16);
+  push(); textFont('sans-serif'); fill(255); textSize(14);
   text(`Level: ${currentLevel + 1} | Score: ${score}`, 20, 20);
-  if (powerUpActive) { fill(255, 255, 0); text("POWER UP ACTIVE", width/2, 20); }
+  textAlign(RIGHT); text("♥ ".repeat(health), width - 20, 20);
   pop();
 }
 
 function drawGameOver() {
-  background(0, 150); fill(255, 0, 0); textAlign(CENTER, CENTER); textFont('sans-serif');
-  textSize(50); text("GAME OVER", width/2, height/2);
+  background(0, 150); fill(255, 0, 0); textAlign(CENTER, CENTER);
+  textSize(40); text("GAME OVER", width/2, height/2);
 }
 
 function drawGameWon() {
-  background(0, 150); fill(0, 255, 0); textAlign(CENTER, CENTER); textFont('sans-serif');
-  textSize(50); text("YOU WIN!", width/2, height/2);
+  background(0, 150); fill(0, 255, 0); textAlign(CENTER, CENTER);
+  textSize(40); text("YOU WIN!", width/2, height/2);
 }
 
 // --- CLASSES ---
 class Food {
   constructor(img, x, y) {
     this.img = img; this.x = x; this.y = y;
-    this.isPowerUp = random() < 0.15; // 15% chance
+    this.isPowerUp = random() < 0.2; 
   }
   display() {
-    if (this.isPowerUp) tint(255, 215, 0); // Golden power-up
-    image(this.img, this.x, this.y, 30, 30);
+    if (this.isPowerUp) tint(255, 215, 0); 
+    image(this.img, this.x, this.y, 25, 25);
     noTint();
   }
 }
@@ -228,18 +223,49 @@ class BadFood {
     this.vx = 2; this.vy = 0;
   }
   display(scared) {
-    if (scared) tint(100, 100, 255); // Scared ghosts turn blue
-    image(this.img, this.x, this.y, 35, 35);
+    if (scared) tint(100, 100, 255); 
+    image(this.img, this.x, this.y, 30, 30);
     noTint();
   }
   move(walls) {
-    this.x += this.vx; this.y += this.vy;
+    this.x += this.vx;
     for (let w of walls) {
-      if (dist(this.x, this.y, w.x, w.y) < 40) {
+      if (dist(this.x, this.y, w.x, w.y) < 35) {
         this.vx *= -1; this.x += this.vx * 2;
       }
     }
   }
 }
 
-// Include your Player class here...
+class Player {
+  constructor(idleImgs, runImgs, deadImgs, x, y) {
+    this.x = x; this.y = y; this.size = 50;
+    this.idleImgs = idleImgs; this.runImgs = runImgs; this.deadImgs = deadImgs;
+    this.state = 'idle'; this.frameIndex = 0; this.animTimer = 0; this.animSpeed = 6; this.flipped = false;
+  }
+  update(dead) {
+    if (dead) { this.state = 'dead'; }
+    else {
+      let moving = (abs(playerBody.vel.x) > 0.1 || abs(playerBody.vel.y) > 0.1);
+      if (playerBody.vel.x < 0) this.flipped = true;
+      if (playerBody.vel.x > 0) this.flipped = false;
+      this.state = moving ? 'run' : 'idle';
+    }
+    this.animTimer++;
+    if (this.animTimer >= this.animSpeed) {
+      this.animTimer = 0;
+      this.frameIndex = (this.frameIndex + 1) % this.currentImages().length;
+    }
+  }
+  currentImages() {
+    if (this.state === 'run') return this.runImgs;
+    if (this.state === 'dead') return this.deadImgs;
+    return this.idleImgs;
+  }
+  display() {
+    push(); imageMode(CENTER); translate(this.x, this.y);
+    if (this.flipped) scale(-1, 1);
+    image(this.currentImages()[this.frameIndex], 0, 0, this.size, this.size);
+    pop();
+  }
+}
