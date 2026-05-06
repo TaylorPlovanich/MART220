@@ -2,6 +2,7 @@
 // MART 220 - Final Project: Crab Collector
 // =============================================
 
+// --- Global Variables ---
 let player, playerBody;
 let goodFoods = [];   
 let badFoods = [];    
@@ -9,23 +10,29 @@ let particles = [];
 let obstacles = null;
 let score = 0;
 let health = 3;
+let currentLevel = 1; // Level Variety
+let winScore = 10;    // Score needed for Level 2
 let gameOver = false;
 let gameWon = false;
 let gameStarted = false;
 
+// Assets
 let idleImgs = [], runImgs = [], deadImgs = [];
 let goodFoodImg, badFoodImg;
 let bgMusic, goodFoodSnd, badFoodSnd;
 
 function preload() {
+  // Character Animations
   for (let i = 0; i <= 9; i++) {
     let num = nf(i, 3);
     idleImgs.push(loadImage('images/Idle' + num + '.png'));
     runImgs.push(loadImage('images/Run__' + num + '.png'));
     deadImgs.push(loadImage('images/Dead' + num + '.png'));
   }
+  // Food & Enemy Assets
   goodFoodImg = loadImage('images/crab_meat.png');
   badFoodImg  = loadImage('images/bad_food.png');
+  // Audio Assets
   bgMusic     = loadSound('sounds/background.mp3');
   goodFoodSnd = loadSound('sounds/good_food.mp3');
   badFoodSnd  = loadSound('sounds/bad_food.mp3');
@@ -37,9 +44,11 @@ function setup() {
   initGame(); 
 }
 
+// Function to (re)initialize game state for restarts
 function initGame() {
   score = 0;
   health = 3;
+  currentLevel = 1;
   gameOver = false;
   gameWon = false;
   goodFoods = [];
@@ -75,6 +84,7 @@ function keyPressed() {
     gameStarted = true;
     bgMusic.play();
   }
+  // Restart Logic
   if ((gameOver || gameWon) && key === 'r') {
     initGame();
     bgMusic.play();
@@ -82,7 +92,9 @@ function keyPressed() {
 }
 
 function draw() {
-  background(50, 120, 80);
+  // Visual Variety: Background changes per level
+  if (currentLevel === 1) background(50, 120, 80); // Green Beach
+  else background(20, 40, 80); // Deep Blue Sea
 
   if (!gameStarted) {
     drawStartScreen();
@@ -90,6 +102,7 @@ function draw() {
   }
 
   if (!gameOver && !gameWon) {
+    // Movement
     playerBody.velocity.x = 0;
     playerBody.velocity.y = 0;
     if (keyIsDown(LEFT_ARROW) || keyIsDown(65))  playerBody.velocity.x = -4;
@@ -103,6 +116,14 @@ function draw() {
     player.y = playerBody.pos.y;
     player.update(false);
 
+    // Level Progression
+    if (currentLevel === 1 && score >= winScore) {
+      currentLevel = 2;
+      // Add a difficulty spike
+      for (let i = 0; i < 2; i++) badFoods.push(new BadFood(badFoodImg));
+    }
+
+    // Collectibles
     for (let f of goodFoods) {
       f.display();
       if (f.hits(player)) {
@@ -112,8 +133,17 @@ function draw() {
       }
     }
 
+    // Enemies with "Stalker" Logic in Level 2
     for (let i = badFoods.length - 1; i >= 0; i--) {
       badFoods[i].display();
+      
+      // LEVEL 2 VARIETY: Enemies follow the player
+      if (currentLevel === 2) {
+        let angle = atan2(player.y - badFoods[i].y, player.x - badFoods[i].x);
+        badFoods[i].x += cos(angle) * 1.2; 
+        badFoods[i].y += sin(angle) * 1.2;
+      }
+
       if (badFoods[i].hits(player)) {
         health--;
         badFoodSnd.play();
@@ -121,13 +151,15 @@ function draw() {
         if (health <= 0) { gameOver = true; bgMusic.stop(); }
       }
 
+      // Attack Mechanic
       if (keyIsDown(88)) {
         let d = dist(player.x, player.y, badFoods[i].x, badFoods[i].y);
         if (d < 100) {
           badFoods[i].takeDamage(); 
           createParticles(badFoods[i].x, badFoods[i].y);
+          // Audio feedback for attack
           if (!goodFoodSnd.isPlaying()) {
-             goodFoodSnd.rate(2.0); 
+             goodFoodSnd.rate(2.5); 
              goodFoodSnd.play();
           }
           if (badFoods[i].hp <= 0) badFoods.splice(i, 1);
@@ -144,7 +176,7 @@ function draw() {
     if (badFoods.length === 0) { gameWon = true; bgMusic.stop(); }
 
   } else {
-    player.update(true); 
+    player.update(true); // Death animation
   }
 
   player.display();
@@ -157,54 +189,67 @@ function createParticles(x, y) {
   for (let i = 0; i < 5; i++) particles.push(new Particle(x, y));
 }
 
+// --- Screen & HUD Functions (Forcing Fonts to fix Pink Squares) ---
+
 function drawStartScreen() {
-  fill(0, 160); rect(0, 0, width, height);
+  push();
+  textFont('sans-serif');
+  fill(0, 180); rect(0, 0, width, height);
   fill(255); textAlign(CENTER, CENTER);
   textSize(40); text('CRAB COLLECTOR', width / 2, height / 2 - 50);
   textSize(18); fill(200);
   text('Move with ARROWS. Press X to Attack.', width / 2, height / 2);
-  text('Press any key to begin your hunt!', width / 2, height / 2 + 35);
+  text('Press any key to begin!', width / 2, height / 2 + 35);
+  pop();
 }
 
 function drawHUD() {
-  fill(255); textSize(20); textAlign(LEFT, TOP);
-  text('Crabs: ' + score, 10, 10);
+  push();
+  textFont('sans-serif');
+  fill(255); textSize(18); textAlign(LEFT, TOP);
+  text('Crabs: ' + score, 15, 10);
+  text('Level: ' + currentLevel, 15, 32);
+  
   textAlign(RIGHT, TOP); fill(255, 80, 120);
   let hearts = '';
   for (let i = 0; i < health; i++) hearts += '♥ ';
-  text(hearts, width - 10, 10);
+  text(hearts, width - 15, 10);
+  pop();
 }
 
 function drawGameOver() {
-  fill(0, 150); rect(0, 0, width, height);
+  push();
+  textFont('sans-serif');
+  fill(0, 180); rect(0, 0, width, height);
   fill(255, 80, 80); textAlign(CENTER, CENTER); textSize(52);
   text('WASTED', width / 2, height / 2 - 40);
   fill(255); textSize(20); text('Press [R] to Try Again', width / 2, height / 2 + 30);
+  pop();
 }
 
 function drawGameWon() {
-  fill(0, 150); rect(0, 0, width, height);
+  push();
+  textFont('sans-serif');
+  fill(0, 180); rect(0, 0, width, height);
   fill(100, 255, 100); textAlign(CENTER, CENTER); textSize(52);
   text('CHAMPION', width / 2, height / 2 - 40);
   fill(255); textSize(20); text('Press [R] to Play Again', width / 2, height / 2 + 30);
+  pop();
 }
 
 // --- CLASSES ---
 
 class Particle {
   constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.vx = random(-2, 2);
-    this.vy = random(-4, -1);
+    this.x = x; this.y = y;
+    this.vx = random(-2, 2); this.vy = random(-4, -1);
     this.alpha = 255;
   }
   finished() { return this.alpha < 0; }
   update() { this.x += this.vx; this.y += this.vy; this.alpha -= 8; }
   show() {
-    noStroke();
-    fill(255, 150, 0, this.alpha);
-    ellipse(this.x, this.y, 12);
+    noStroke(); fill(255, 150, 0, this.alpha);
+    ellipse(this.x, this.y, 10);
   }
 }
 
@@ -248,8 +293,7 @@ class Player {
 class Food {
   constructor(img) {
     this.img = img; this.size = 40;
-    this.x = random(this.size, width - this.size);
-    this.y = random(this.size, height - this.size);
+    this.x = random(40, 560); this.y = random(40, 360);
     this.timer = 0; this.moveInterval = int(random(120, 300));
   }
   update() {
@@ -257,8 +301,7 @@ class Food {
     if (this.timer >= this.moveInterval) this.moveRandom();
   }
   moveRandom() {
-    this.x = random(this.size, width - this.size);
-    this.y = random(this.size, height - this.size);
+    this.x = random(40, 560); this.y = random(40, 360);
     this.timer = 0;
   }
   display() { imageMode(CENTER); image(this.img, this.x, this.y, this.size, this.size); }
@@ -277,11 +320,12 @@ class BadFood {
     let sx = random(-this.shake, this.shake);
     translate(this.x + sx, this.y);
     imageMode(CENTER);
-    if (this.shake > 0) { tint(255, 0, 0); this.shake *= 0.9; }
+    if (this.shake > 0) { tint(255, 0, 0); this.shake *= 0.85; }
     image(this.img, 0, 0, this.size, this.size);
     pop();
-    fill(200, 0, 0); rect(this.x - 20, this.y - 30, 40, 5);
-    fill(0, 200, 0); rect(this.x - 20, this.y - 30, 40 * (this.hp/20), 5);
+    // Improved Health Bar
+    noStroke(); fill(100, 0, 0); rect(this.x - 20, this.y - 30, 40, 4);
+    fill(0, 255, 0); rect(this.x - 20, this.y - 30, 40 * (this.hp/20), 4);
   }
   hits(player) { return dist(this.x, this.y, player.x, player.y) < 35; }
   moveRandom() { this.x = random(40, 560); this.y = random(40, 360); }
