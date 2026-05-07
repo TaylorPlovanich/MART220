@@ -117,6 +117,7 @@ function preload() {
 function setup() {
   new Canvas(20 * TILE, 14 * TILE);
   world.gravity.y = 0;
+  allSprites.autoDraw = false; // we draw sprites manually so UI always renders on top
   bgMusic.setLoop(true);
 }
 
@@ -190,6 +191,7 @@ function updateGameLogic() {
   let col = levelColors[currentLevel];
   background(col.bg[0], col.bg[1], col.bg[2]);
   drawFloor();
+  if (walls) walls.draw(); // draw walls now, before player/food/UI
 
   // ── READ INPUT (queue direction, never clear while key held) ──────────────
   if      (kb.pressing('left')  || kb.pressing('a')) queuedDir = 'left';
@@ -446,6 +448,12 @@ function drawStartScreen() {
 }
 
 function drawGameOver() {
+  // Redraw the level behind the overlay so it looks frozen
+  let col = levelColors[currentLevel];
+  background(col.bg[0], col.bg[1], col.bg[2]);
+  drawFloor();
+  if (walls) walls.draw();
+  // Dark overlay — drawn after walls, so text on top of everything
   fill(0,0,0,180); rect(0,0,width,height);
   textAlign(CENTER,CENTER); textFont('monospace');
   fill(255,40,40); textSize(52); text("GAME OVER", width/2, height/2-44);
@@ -458,6 +466,10 @@ function drawGameOver() {
 }
 
 function drawGameWon() {
+  let col = levelColors[currentLevel];
+  background(col.bg[0], col.bg[1], col.bg[2]);
+  drawFloor();
+  if (walls) walls.draw();
   fill(0,0,0,180); rect(0,0,width,height);
   textAlign(CENTER,CENTER); textFont('monospace');
   colorMode(HSB); fill(frameCount%360, 100, 100); colorMode(RGB);
