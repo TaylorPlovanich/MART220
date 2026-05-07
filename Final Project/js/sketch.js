@@ -253,10 +253,9 @@ function updateGameLogic() {
     if (!playerMoving && playerCol === f.col && playerRow === f.row) {
       spawnParticles(f.x, f.y, f.isPowerUp ? [255,215,0] : [100,255,100]);
       goodFoods.splice(i, 1);
-      if (f.isPowerUp) { powerUpActive = true; powerUpTimer = 420; score += 20; }
+      if (f.isPowerUp) { powerUpActive = true; powerUpTimer = 420; score += 20; goodFoodSnd.play(); }
       else             { score += 10; }
       if (score > highScore) highScore = score;
-      goodFoodSnd.play();
     }
   }
 
