@@ -400,21 +400,36 @@ function currentAnimImgs() {
 // ── HUD ───────────────────────────────────────────────────────────────────────
 function drawHUD() {
   push(); noStroke();
-  fill(0,0,0,170); rect(0,0,width,26);
-  textFont('monospace'); textSize(13); fill(255);
-  textAlign(LEFT,   CENTER); text(`LVL ${currentLevel+1}`, 8, 13);
-  textAlign(CENTER, CENTER); text(`SCORE: ${score}`, width/2, 13);
-  textAlign(RIGHT,  CENTER);
+  fill(0,0,0,200); rect(0,0,width,38);
+
+  textFont('monospace'); textSize(15);
+
+  // Level - left
+  fill(180,180,180);
+  textAlign(LEFT, CENTER);
+  text(`LVL ${currentLevel+1}`, 10, 19);
+
+  // Score - center
+  fill(255,215,0);
+  textAlign(CENTER, CENTER);
+  text(`SCORE: ${score}`, width/2, 19);
+
+  // Health label + hearts - right
+  fill(180,180,180);
+  textAlign(RIGHT, CENTER);
+  text('HEALTH:', width - 88, 19);
   for (let i = 0; i < 3; i++) {
     fill(i < health ? color(255,50,50) : color(60,60,60));
-    drawHeart(width - 14 - i*22, 13, 7);
+    drawHeart(width - 14 - i*26, 19, 8);
   }
+
+  // Power-up bar at bottom
   if (powerUpActive) {
-    let bw = map(powerUpTimer, 0, 420, 0, 100);
-    fill(0,0,0,130); rect(width/2-52, height-18, 104, 12, 6);
-    fill(255,215,0); rect(width/2-50, height-17, bw,   9,  5);
-    fill(0); textAlign(CENTER,CENTER); textSize(9);
-    text("POWER!", width/2, height-12);
+    let bw = map(powerUpTimer, 0, 420, 0, 120);
+    fill(0,0,0,150); rect(width/2-62, height-20, 124, 14, 7);
+    fill(255,215,0);  rect(width/2-60, height-19, bw,  11, 6);
+    fill(0); textAlign(CENTER,CENTER); textSize(10);
+    text("POWER MODE!", width/2, height-13);
   }
   pop();
 }
