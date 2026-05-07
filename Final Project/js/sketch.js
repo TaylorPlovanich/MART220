@@ -8,6 +8,7 @@ let powerUpActive = false, powerUpTimer = 0;
 let invincibleTimer = 0;
 let highScore = 0;
 let particles = [];
+let deadEnemies = []; // {col, row, timer} — waiting to respawn
 
 // ── GRID-LOCKED PLAYER STATE ──────────────────────────────────────────────────
 // The player always lives on exact tile centers.
@@ -124,6 +125,7 @@ function initLevel() {
   goodFoods     = [];
   badFoods      = [];
   particles     = [];
+  deadEnemies   = [];
   powerUpActive = false;
   powerUpTimer  = 0;
   invincibleTimer = 0;
@@ -265,6 +267,8 @@ function updateGameLogic() {
     if (badFoods[i].col === playerCol && badFoods[i].row === playerRow) {
       if (powerUpActive) {
         spawnParticles(badFoods[i].px, badFoods[i].py, [50,100,255]);
+        // Queue respawn at the enemy's original spawn tile after 180 frames (3 sec)
+        deadEnemies.push({ col: badFoods[i].spawnCol, row: badFoods[i].spawnRow, timer: 180 });
         badFoods.splice(i, 1);
         score += 50;
         if (score > highScore) highScore = score;
@@ -276,6 +280,25 @@ function updateGameLogic() {
         respawnPlayer();
         if (health <= 0) gameState = "GAMEOVER";
       }
+    }
+  }
+
+  // ── ENEMY RESPAWN ─────────────────────────────────────────────────────────
+  for (let i = deadEnemies.length - 1; i >= 0; i--) {
+    deadEnemies[i].timer--;
+    // Draw a pulsing ghost outline at the spawn point while waiting
+    let d = deadEnemies[i];
+    let sx = d.col * TILE + TILE / 2;
+    let sy = d.row * TILE + TILE / 2;
+    let pulse = (sin(frameCount * 0.2) + 1) / 2;
+    noFill(); stroke(100, 100, 255, lerp(60, 180, pulse));
+    strokeWeight(2);
+    ellipse(sx, sy, 24, 24);
+    noStroke();
+
+    if (deadEnemies[i].timer <= 0) {
+      badFoods.push(new BadFood(d.col, d.row));
+      deadEnemies.splice(i, 1);
     }
   }
 
@@ -479,15 +502,16 @@ class Particle {
 class BadFood {
   constructor(startCol, startRow) {
     this.col = startCol; this.row = startRow;
+    this.spawnCol = startCol; this.spawnRow = startRow; // remember home tile
     this.px  = startCol * TILE + TILE / 2;
     this.py  = startRow * TILE + TILE / 2;
     this.startPx = this.px; this.startPy = this.py;
     this.targetPx = this.px; this.targetPy = this.py;
     this.moving   = false;
     this.progress = 0;
-    this.moveSpeed = 0.035;   // slow — tune here
+    this.moveSpeed = 0.055;   // faster than before
     this.moveTimer    = 0;
-    this.moveInterval = floor(random(40, 80));
+    this.moveInterval = floor(random(20, 50)); // shorter pause between moves
     this.eyeAngle  = 0;
     this.facingLeft = false;
   }
@@ -497,7 +521,7 @@ class BadFood {
       this.moveTimer++;
       if (this.moveTimer >= this.moveInterval) {
         this.moveTimer = 0;
-        this.moveInterval = floor(random(40, 80));
+        this.moveInterval = floor(random(20, 50));
         this._pickDir();
       }
     }
@@ -523,7 +547,7 @@ class BadFood {
     if (dirs.length === 0) return;
 
     let pick;
-    if (random() < 0.45) {
+    if (random() < 0.70) {
       // Chase player
       let best = null, bestD = Infinity;
       for (let d of dirs) {
